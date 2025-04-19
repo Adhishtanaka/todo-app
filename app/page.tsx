@@ -1,103 +1,218 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState, useEffect } from "react";
+import TodoItem from "@/components/TodoItem";
+import AddTodo from "@/components/AddTodo";
+import UserDialog from "@/components/UserDialog";
+
+interface Todo {
+  id: string;
+  title: string;
+  completed: boolean;
+  description?: string;
+  deadline?: string;
+  createdAt?: string;
+}
+
+export default function TodoList() {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [filteredTodos, setFilteredTodos] = useState<Todo[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [dateFilter, setDateFilter] = useState(() => {
+    const today = new Date();
+    return today.toISOString().split('T')[0]; 
+  });
+
+  useEffect(() => {
+    fetchTodos();
+  }, []);
+
+  useEffect(() => {
+    filterTodos();
+  }, [todos, searchTerm, dateFilter]);
+
+  const fetchTodos = async () => {
+    try {
+      const response = await fetch("/api/todos");
+      if (!response.ok) throw new Error("Failed to fetch todos");
+      const data = await response.json();
+      setTodos(data);
+    } catch (error) {
+      console.error("Error fetching todos:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const filterTodos = () => {
+    let filtered = [...todos];
+
+    // Apply search filter
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter(
+        todo =>
+          todo.title.toLowerCase().includes(term) ||
+          (todo.description && todo.description.toLowerCase().includes(term))
+      );
+    }
+
+    // Apply date filter
+    if (dateFilter) {
+      const filterDate = new Date(dateFilter);
+      filterDate.setHours(0, 0, 0, 0);
+      
+      filtered = filtered.filter(todo => {
+        if (!todo.createdAt) return false;
+        const todoDate = new Date(todo.createdAt);
+        todoDate.setHours(0, 0, 0, 0);
+        return todoDate.getTime() === filterDate.getTime();
+      });
+    }
+
+    setFilteredTodos(filtered);
+  };
+
+  const addTodo = async (title: string, description?: string, deadline?: string) => {
+    try {
+      const response = await fetch("/api/todos", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ title, description, deadline }),
+      });
+
+      if (!response.ok) throw new Error("Failed to add todo");
+      const newTodo: Todo = await response.json();
+      setTodos((prev) => [newTodo, ...prev]);
+    } catch (error) {
+      console.error("Error adding todo:", error);
+    }
+  };
+
+  const toggleTodo = async (id: string, completed: boolean) => {
+    try {
+      const response = await fetch(`/api/todos/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ completed }),
+      });
+
+      if (!response.ok) throw new Error("Failed to update todo");
+
+      setTodos((prev) =>
+        prev.map((todo) => (todo.id === id ? { ...todo, completed } : todo))
+      );
+    } catch (error) {
+      console.error("Error updating todo:", error);
+    }
+  };
+
+  const deleteTodo = async (id: string) => {
+    try {
+      const response = await fetch(`/api/todos/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) throw new Error("Failed to delete todo");
+
+      setTodos((prev) => prev.filter((todo) => todo.id !== id));
+    } catch (error) {
+      console.error("Error deleting todo:", error);
+    }
+  };
+
+  const clearFilters = () => {
+    setSearchTerm("");
+    setDateFilter("");
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-neutral-950 text-white">
+        <div className="text-xl">Loading...</div>
+      </div>
+    );
+  }
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="min-h-screen bg-neutral-950 px-4 py-8 text-white">
+      <div className="mx-auto w-full max-w-2xl rounded-xl border border-neutral-800 bg-neutral-900 p-6 shadow-lg">
+        <header className="mb-6 flex items-center justify-between">
+          <h1 className="text-3xl font-bold">Todo List</h1>
+          <UserDialog />
+        </header>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+        <div className="space-y-6">
+          {/* Search and Filter Section */}
+          <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
+            <div className="flex-1">
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search todos..."
+                className="w-full rounded-md border border-neutral-700 bg-neutral-800 px-4 py-2 text-white focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              />
+            </div>
+            <div className="flex items-center space-x-2">
+              <input
+                type="date"
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value)}
+                className="rounded-md border border-neutral-700 bg-neutral-800 px-4 py-2 text-white focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              />
+              {(searchTerm || dateFilter) && (
+                <button
+                  onClick={clearFilters}
+                  className="rounded-md bg-neutral-700 px-3 py-2 text-xs text-white hover:bg-neutral-600"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Add Todo Form */}
+          <div className="rounded-lg border border-neutral-800 bg-neutral-800/50 p-4">
+            <h2 className="mb-3 text-lg font-medium">Add New Todo</h2>
+            <AddTodo onAdd={addTodo} />
+          </div>
+
+          {/* Todo List */}
+          <div>
+            <div className="mb-2 flex items-center justify-between">
+              <h2 className="text-lg font-medium">Your Tasks</h2>
+              <span className="text-sm text-neutral-400">
+                {filteredTodos.length} {filteredTodos.length === 1 ? "task" : "tasks"}
+              </span>
+            </div>
+
+            {filteredTodos.length === 0 ? (
+              <div className="mt-4 rounded-lg border border-neutral-800 bg-neutral-800/30 p-8 text-center text-neutral-500">
+                {todos.length === 0
+                  ? "No todos yet. Add one above!"
+                  : "No matching tasks found for your filters."}
+              </div>
+            ) : (
+              <ul className="space-y-3">
+                {filteredTodos.map((todo) => (
+                  <TodoItem
+                    key={todo.id}
+                    todo={todo}
+                    onToggle={toggleTodo}
+                    onDelete={deleteTodo}
+                  />
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </div>
     </div>
   );
 }

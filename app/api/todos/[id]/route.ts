@@ -1,6 +1,4 @@
-export const runtime = 'nodejs';
-
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { verifyToken } from "@/app/utils/jwt";
 
@@ -10,10 +8,11 @@ function getTokenFromRequest(request: Request): string | null {
   return request.headers.get("cookie")?.match(/token=([^;]+)/)?.[1] ?? null;
 }
 
-export async function PUT(
-  request: NextRequest,
-  context: { params: { id: string } }
-) {
+export async function PUT(request: Request , {
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
   try {
     const token = getTokenFromRequest(request);
     if (!token) return NextResponse.json({ error: "No token provided" }, { status: 401 });
@@ -24,8 +23,7 @@ export async function PUT(
     const user = await prisma.user.findUnique({ where: { email: result.email } });
     if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-    // Await the params object before accessing properties
-    const { id } = await context.params;
+    const { id } = await params;
     const { title, description, completed, deadline } = await request.json();
 
     const todo = await prisma.todo.findUnique({ where: { id } });
@@ -49,10 +47,11 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  request: NextRequest,
-  context: { params: { id: string } }
-) {
+export async function DELETE(request: Request , {
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
   try {
     const token = getTokenFromRequest(request);
     if (!token) return NextResponse.json({ error: "No token provided" }, { status: 401 });
@@ -63,8 +62,7 @@ export async function DELETE(
     const user = await prisma.user.findUnique({ where: { email: result.email } });
     if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-    // Await the params object before accessing properties
-    const { id } = await context.params;
+    const { id } = await params;
 
     const todo = await prisma.todo.findUnique({ where: { id } });
     if (!todo || todo.userId !== user.id) {

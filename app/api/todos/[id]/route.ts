@@ -12,7 +12,7 @@ function getTokenFromRequest(request: Request): string | null {
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     const token = getTokenFromRequest(request);
@@ -24,7 +24,8 @@ export async function PUT(
     const user = await prisma.user.findUnique({ where: { email: result.email } });
     if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-    const id = params.id;
+    // Await the params object before accessing properties
+    const { id } = await context.params;
     const { title, description, completed, deadline } = await request.json();
 
     const todo = await prisma.todo.findUnique({ where: { id } });
@@ -50,7 +51,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     const token = getTokenFromRequest(request);
@@ -62,7 +63,8 @@ export async function DELETE(
     const user = await prisma.user.findUnique({ where: { email: result.email } });
     if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-    const id = params.id;
+    // Await the params object before accessing properties
+    const { id } = await context.params;
 
     const todo = await prisma.todo.findUnique({ where: { id } });
     if (!todo || todo.userId !== user.id) {

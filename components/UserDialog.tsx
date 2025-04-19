@@ -2,6 +2,7 @@
 
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment, useState } from 'react';
+import Image from 'next/image';
 
 export default function UserDialog() {
   const [isOpen, setIsOpen] = useState(false);
@@ -65,11 +66,13 @@ export default function UserDialog() {
                   </Dialog.Title>
 
                   {user ? (
-                    <div className="mt-4 space-y-4">
-                      <img
+                    <div>
+                      <Image
                         src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}`}
                         alt="Avatar"
-                        className="rounded-full w-24 h-24 mx-auto"
+                        width={96}
+                        height={96}
+                        className="rounded-full mx-auto"
                       />
                       <div className="text-center">
                         <p className="text-lg font-semibold">{user.name}</p>

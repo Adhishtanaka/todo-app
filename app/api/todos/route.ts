@@ -65,7 +65,7 @@ export async function POST(request: Request) {
       },
     });
 
-    return jsonWithNoCache(todo);
+    return jsonWithNoCache(todo,201);
   } catch (error) {
     return jsonWithNoCache({ error: `${error}` }, 500);
   }

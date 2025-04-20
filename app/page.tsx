@@ -23,6 +23,7 @@ export default function TodoList() {
     const today = new Date();
     return today.toISOString().split('T')[0]; 
   });
+  const [isAddTodoOpen, setIsAddTodoOpen] = useState(false);
 
   useEffect(() => {
     fetchTodos();
@@ -48,7 +49,6 @@ export default function TodoList() {
   const filterTodos = () => {
     let filtered = [...todos];
 
-    // Apply search filter
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       filtered = filtered.filter(
@@ -58,7 +58,6 @@ export default function TodoList() {
       );
     }
 
-    // Apply date filter
     if (dateFilter) {
       const filterDate = new Date(dateFilter);
       filterDate.setHours(0, 0, 0, 0);
@@ -87,6 +86,8 @@ export default function TodoList() {
       if (!response.ok) throw new Error("Failed to add todo");
       const newTodo: Todo = await response.json();
       setTodos((prev) => [newTodo, ...prev]);
+      // Optionally close the accordion after adding
+      setIsAddTodoOpen(false);
     } catch (error) {
       console.error("Error adding todo:", error);
     }
@@ -131,6 +132,10 @@ export default function TodoList() {
     setDateFilter("");
   };
 
+  const toggleAddTodo = () => {
+    setIsAddTodoOpen(prev => !prev);
+  };
+
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-neutral-950 text-white">
@@ -148,7 +153,7 @@ export default function TodoList() {
         </header>
 
         <div className="space-y-6">
-          {/* Search and Filter Section */}
+         
           <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
             <div className="flex-1">
               <input
@@ -177,14 +182,35 @@ export default function TodoList() {
             </div>
           </div>
 
-          {/* Add Todo Form */}
-          <div className="rounded-lg border border-neutral-800 bg-neutral-800/50 p-4">
-            <h2 className="mb-3 text-lg font-medium">Add New Todo</h2>
-            <AddTodo onAdd={addTodo} />
+          {/* Accordion for Add Todo section */}
+          <div className="rounded-lg border border-neutral-800 bg-neutral-800/50 overflow-hidden">
+            <button 
+              onClick={toggleAddTodo}
+              className="w-full flex items-center justify-between p-4 text-left hover:bg-neutral-700/30 transition-colors"
+            >
+              <h2 className="text-lg font-medium">Add New Todo</h2>
+              <svg 
+                className={`w-5 h-5 transform ${isAddTodoOpen ? 'rotate-180' : ''} transition-transform`} 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24" 
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </button>
+            
+            {/* Expanded content */}
+            <div 
+              className={`transition-all duration-300 ease-in-out overflow-hidden ${
+                isAddTodoOpen ? "max-h-96 p-4" : "max-h-0"
+              }`}
+            >
+              <AddTodo onAdd={addTodo} />
+            </div>
           </div>
 
-          {/* Todo List */}
-          <div>
+         <div>
             <div className="mb-2 flex items-center justify-between">
               <h2 className="text-lg font-medium">Your Tasks</h2>
               <span className="text-sm text-neutral-400">

@@ -19,10 +19,7 @@ export default function TodoList() {
   const [filteredTodos, setFilteredTodos] = useState<Todo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [dateFilter, setDateFilter] = useState(() => {
-    const today = new Date();
-    return today.toISOString().split('T')[0]; 
-  });
+
   const [isAddTodoOpen, setIsAddTodoOpen] = useState(false);
 
   useEffect(() => {
@@ -31,7 +28,7 @@ export default function TodoList() {
 
   useEffect(() => {
     filterTodos();
-  }, [todos, searchTerm, dateFilter]);
+  }, [todos, searchTerm]);
 
   const fetchTodos = async () => {
     try {
@@ -57,19 +54,6 @@ export default function TodoList() {
           (todo.description && todo.description.toLowerCase().includes(term))
       );
     }
-
-    if (dateFilter) {
-      const filterDate = new Date(dateFilter);
-      filterDate.setHours(0, 0, 0, 0);
-      
-      filtered = filtered.filter(todo => {
-        if (!todo.createdAt) return false;
-        const todoDate = new Date(todo.createdAt);
-        todoDate.setHours(0, 0, 0, 0);
-        return todoDate.getTime() === filterDate.getTime();
-      });
-    }
-
     setFilteredTodos(filtered);
   };
 
@@ -129,7 +113,6 @@ export default function TodoList() {
 
   const clearFilters = () => {
     setSearchTerm("");
-    setDateFilter("");
   };
 
   const toggleAddTodo = () => {
@@ -165,13 +148,8 @@ export default function TodoList() {
               />
             </div>
             <div className="flex items-center space-x-2">
-              <input
-                type="date"
-                value={dateFilter}
-                onChange={(e) => setDateFilter(e.target.value)}
-                className="rounded-md border border-neutral-700 bg-neutral-800 px-4 py-2 text-white focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-              />
-              {(searchTerm || dateFilter) && (
+              
+              {(searchTerm) && (
                 <button
                   onClick={clearFilters}
                   className="rounded-md bg-neutral-700 px-3 py-2 text-xs text-white hover:bg-neutral-600"

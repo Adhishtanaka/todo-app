@@ -1,6 +1,6 @@
 # todo-app
 
-A simple Todo system built with **Next.js**, **PostgreSQL**, **Flutter**, and **Prisma**, hosted on **Netlify**. This project demonstrates core backend and frontend concepts using **Next.js API routes**, **JWT authentication**, and shared access for both web and mobile clients.
+A simple Todo system built with **Next.js**, **PostgreSQL**, **Flutter**, and **Prisma**, hosted on **Netlify**. This project demonstrates core backend and frontend concepts using **Next.js API routes**, **JWT authentication**, and shared access for both web and mobile clients..
 
 <img src="screenshot/a1.png" alt="TodoApp View" style="width: 700px;" />
 

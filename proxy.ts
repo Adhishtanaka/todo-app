@@ -11,7 +11,7 @@ const apiPaths = [
   '/api/todo',
 ];
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const isPathProtected = protectedPaths.some((path) => 

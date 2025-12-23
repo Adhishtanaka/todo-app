@@ -12,6 +12,7 @@ interface Todo {
   description?: string;
   deadline?: string;
   createdAt?: string;
+  updatedAt?: string;
 }
 
 export default function TodoList() {

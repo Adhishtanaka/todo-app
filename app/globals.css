@@ -1,1 +1,136 @@
 @import "tailwindcss";
+
+/* Custom Markdown Styles */
+.markdown-content {
+  line-height: 1.7;
+}
+
+.markdown-content p {
+  margin-bottom: 1rem;
+  color: rgb(203 213 225); /* text-slate-300 */
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4,
+.markdown-content h5,
+.markdown-content h6 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  color: white;
+}
+
+.markdown-content h1 {
+  font-size: 1.875rem; /* text-3xl */
+  margin-top: 0;
+}
+
+.markdown-content h2 {
+  font-size: 1.5rem; /* text-2xl */
+}
+
+.markdown-content h3 {
+  font-size: 1.25rem; /* text-xl */
+}
+
+.markdown-content h4 {
+  font-size: 1.125rem; /* text-lg */
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+  color: rgb(203 213 225); /* text-slate-300 */
+}
+
+.markdown-content li {
+  margin-bottom: 0.25rem;
+}
+
+.markdown-content ul {
+  list-style-type: disc;
+}
+
+.markdown-content ol {
+  list-style-type: decimal;
+}
+
+.markdown-content strong {
+  font-weight: 600;
+  color: white;
+}
+
+.markdown-content em {
+  font-style: italic;
+  color: rgb(226 232 240); /* text-slate-200 */
+}
+
+.markdown-content code {
+  background-color: rgb(30 41 59); /* bg-slate-800 */
+  color: rgb(165 180 252); /* text-indigo-300 */
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+.markdown-content pre {
+  background-color: rgb(30 41 59); /* bg-slate-800 */
+  border: 1px solid rgb(51 65 85); /* border-slate-700 */
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  overflow-x: auto;
+}
+
+.markdown-content pre code {
+  background-color: transparent;
+  padding: 0;
+  color: rgb(203 213 225); /* text-slate-300 */
+}
+
+.markdown-content blockquote {
+  border-left: 4px solid rgb(71 85 105); /* border-slate-600 */
+  padding-left: 1rem;
+  margin: 1rem 0;
+  color: rgb(148 163 184); /* text-slate-400 */
+  font-style: italic;
+}
+
+.markdown-content a {
+  color: rgb(129 140 248); /* text-indigo-400 */
+  text-decoration: underline;
+}
+
+.markdown-content a:hover {
+  color: rgb(165 180 252); /* text-indigo-300 */
+}
+
+.markdown-content hr {
+  border: none;
+  border-top: 1px solid rgb(51 65 85); /* border-slate-700 */
+  margin: 1.5rem 0;
+}
+
+.markdown-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+  color: rgb(203 213 225); /* text-slate-300 */
+}
+
+.markdown-content th,
+.markdown-content td {
+  border: 1px solid rgb(51 65 85); /* border-slate-700 */
+  padding: 0.5rem;
+  text-align: left;
+}
+
+.markdown-content th {
+  background-color: rgb(30 41 59); /* bg-slate-800 */
+  font-weight: 600;
+  color: white;
+}

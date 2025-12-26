@@ -34,6 +34,7 @@ export default function TodoList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentView, setCurrentView] = useState<"todos" | "notes">("todos");
   const [expandedNoteId, setExpandedNoteId] = useState<string | null>(null);
+  const [updatingTodoIds, setUpdatingTodoIds] = useState<Set<string>>(new Set());
 
   const [isAddTodoOpen, setIsAddTodoOpen] = useState(false);
   const [isAddNoteOpen, setIsAddNoteOpen] = useState(false);
@@ -121,6 +122,7 @@ export default function TodoList() {
   };
 
   const toggleTodo = async (id: string, completed: boolean) => {
+    setUpdatingTodoIds(prev => new Set(prev).add(id));
     try {
       const response = await fetch(`/api/todos/${id}`, {
         method: "PUT",
@@ -137,10 +139,17 @@ export default function TodoList() {
       );
     } catch (error) {
       console.error("Error updating todo:", error);
+    } finally {
+      setUpdatingTodoIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(id);
+        return newSet;
+      });
     }
   };
 
   const updateTodo = async (id: string, updates: { title?: string; description?: string; deadline?: string }) => {
+    setUpdatingTodoIds(prev => new Set(prev).add(id));
     try {
       const response = await fetch(`/api/todos/${id}`, {
         method: "PUT",
@@ -158,6 +167,12 @@ export default function TodoList() {
       );
     } catch (error) {
       console.error("Error updating todo:", error);
+    } finally {
+      setUpdatingTodoIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(id);
+        return newSet;
+      });
     }
   };
 
@@ -449,6 +464,7 @@ export default function TodoList() {
                       onToggle={toggleTodo}
                       onDelete={deleteTodo}
                       onUpdate={updateTodo}
+                      isUpdating={updatingTodoIds.has(todo.id)}
                     />
                   ))}
                 </ul>

@@ -17,9 +17,10 @@ interface TodoItemProps {
   onToggle: (id: string, completed: boolean) => void;
   onDelete: (id: string) => void;
   onUpdate: (id: string, updates: { title?: string; description?: string; deadline?: string }) => void;
+  isUpdating?: boolean;
 }
 
-export default function TodoItem({ todo, onToggle, onDelete, onUpdate }: TodoItemProps) {
+export default function TodoItem({ todo, onToggle, onDelete, onUpdate, isUpdating = false }: TodoItemProps) {
   const [showInfo, setShowInfo] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(todo.title);
@@ -88,12 +89,20 @@ export default function TodoItem({ todo, onToggle, onDelete, onUpdate }: TodoIte
       {/* Main Content */}
       <div className="flex items-start gap-3 p-4">
         {/* Checkbox */}
-        <input
-          type="checkbox"
-          checked={todo.completed}
-          onChange={(e) => onToggle(todo.id, e.target.checked)}
-          className="mt-1 h-4 w-4 rounded border-slate-600/50 bg-slate-900/80 text-indigo-400 focus:ring-2 focus:ring-indigo-400/50 focus:ring-offset-0 backdrop-blur-sm"
-        />
+        <div className="relative">
+          <input
+            type="checkbox"
+            checked={todo.completed}
+            onChange={(e) => onToggle(todo.id, e.target.checked)}
+            disabled={isUpdating}
+            className="mt-1 h-4 w-4 rounded border-slate-600/50 bg-slate-900/80 text-indigo-400 focus:ring-2 focus:ring-indigo-400/50 focus:ring-offset-0 backdrop-blur-sm disabled:opacity-50"
+          />
+          {isUpdating && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-3 h-3 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          )}
+        </div>
         
         {/* Content */}
         <div className="flex-1 min-w-0">

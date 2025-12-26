@@ -5,7 +5,7 @@ import TodoItem from "@/components/TodoItem";
 import AddTodo from "@/components/AddTodo";
 import NoteItem from "@/components/NoteItem";
 import AddNote from "@/components/AddNote";
-import UserDialog from "@/components/UserDialog";
+import ProfileButton from "@/components/ProfileButton";
 
 interface Todo {
   id: string;
@@ -290,7 +290,7 @@ export default function TodoList() {
                 Notes
               </button>
             </div>
-            <UserDialog />
+            <ProfileButton />
           </div>
         </header>
 
@@ -488,6 +488,10 @@ export default function TodoList() {
           </div>
         </div>
       </div>
+      <footer className="mt-8 text-center">
+        <p className="text-slate-400 text-sm">Made by Adhishtaaka</p>
+      </footer>
+      
     </div>
   );
 }
